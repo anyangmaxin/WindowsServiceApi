@@ -57,6 +57,7 @@ namespace Microsoft.Web.Administrator
            // a.Stop();
             
            // a.Bindings.Add("Host", "test.baidu.com");
+           //绑定域名
             a.Bindings.Add("*:80:test.baidu.com", "http");
             //*:80:admin.localtgjs.com
             serverManager.CommitChanges();
