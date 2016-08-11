@@ -1,0 +1,19 @@
+﻿<Window x:Class="WindowsServiceTestUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WindowsServiceTestUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Button x:Name="button" Content="安装" HorizontalAlignment="Left" Margin="54,45,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+        <Button x:Name="button1" Content="卸载" HorizontalAlignment="Left" Margin="54,118,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-3.155,3.71" Click="button1_Click"/>
+        <Button x:Name="button2" Content="启动" HorizontalAlignment="Left" Margin="269,45,0,0" VerticalAlignment="Top" Width="75" Click="button2_Click"/>
+        <Button x:Name="button3" Content="停止" HorizontalAlignment="Left" Margin="269,118,0,0" VerticalAlignment="Top" Width="75" Click="button3_Click"/>
+        <Button x:Name="button4" Content="暂停/继续" HorizontalAlignment="Left" Margin="64,212,0,0" VerticalAlignment="Top" Width="75" Click="button4_Click"/>
+        <Button x:Name="button5" Content="检查状态" HorizontalAlignment="Left" Margin="269,212,0,0" VerticalAlignment="Top" Width="75" Click="button5_Click"/>
+        <Label x:Name="label" Content="状态" HorizontalAlignment="Left" Margin="269,264,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
