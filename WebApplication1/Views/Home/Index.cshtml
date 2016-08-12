@@ -5,7 +5,9 @@
 
 <h2>Index</h2>
 
-@foreach (string s in ViewBag.Sites)
+
+
+@using (Html.BeginForm("GetData", "Home", FormMethod.Post))
 {
-    @s <br/>
+    <input type="submit" value="提交" />
 }

@@ -123,7 +123,7 @@ namespace WindowsServiceInvest.ConfigureTest
 
         public static ServiceController CreateService(string serviceName, string displayName, string binPath, string description, ServiceStartType serviceStartType, ServiceAccount serviceAccount, bool startAfterRun)
         {
-            return CreateService(serviceName, displayName, binPath, description, serviceStartType, serviceAccount,null,startAfterRun  );
+            return CreateService(serviceName, displayName, binPath, description, serviceStartType, serviceAccount,null,startAfterRun);
         }
 
         public static ServiceController CreateService(string serviceName, string displayName, string binPath,bool startAfterRun)
