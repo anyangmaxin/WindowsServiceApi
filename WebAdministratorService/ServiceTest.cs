@@ -30,7 +30,36 @@ namespace WebAdministratorService
                 {
                     sw.WriteLine(site.Name);
                 }
+
+                var testSite=siteCollection.SingleOrDefault(m => m.Id == 1);
+                if (testSite != null)
+                {
+                    testSite.Bindings.Add("*:80:test.mydomain.com", "http");
+                    testSite.Bindings.Add("*:80:test.mydomain2.com", "http");
+                    sw.WriteLine("1绑定域名成功");
+                }
+                else
+                {
+                    sw.WriteLine("id=1的站点未发现");
+                }
+
+                var testSite2 = siteCollection.SingleOrDefault(m => m.Id == 100);
+                if (testSite2 != null)
+                {
+                    testSite2.Bindings.Add("*:80:test.mydomain100.com", "http");
+                
+                    sw.WriteLine("100绑定域名成功");
+                }
+                else
+                {
+                    sw.WriteLine("id=100的站点未发现");
+                }
+                serverManager.CommitChanges();
+
             }
+
+
+
         }
 
         protected override void OnStop()

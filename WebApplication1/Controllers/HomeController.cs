@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.Web.Administrator.Lib;
 
+
 namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
@@ -15,5 +16,7 @@ namespace WebApplication1.Controllers
             ViewBag.Sites = new WebAdministrator().GetSites();
             return View();
         }
+
+   
     }
 }
