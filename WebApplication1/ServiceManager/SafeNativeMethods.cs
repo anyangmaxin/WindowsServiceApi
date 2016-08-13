@@ -76,7 +76,7 @@ namespace WindowsServiceInvest.ConfigureTest
         public const System.Int32 SERVICE_AUTO_START = 0x00000002;
         public const System.Int32 SERVICE_DEMAND_START = 0x00000003;
         public const System.Int32 SERVICE_DISABLED = 0x00000004;
-               
+
 
         // Error control type  
         public const System.Int32 SERVICE_ERROR_IGNORE = 0x00000000;
@@ -94,9 +94,33 @@ namespace WindowsServiceInvest.ConfigureTest
 
         #region methods
 
+        /// <summary>
+        /// 创建服务
+        /// </summary>
+        /// <param name="databaseHandle"></param>
+        /// <param name="serviceName"></param>
+        /// <param name="displayName"></param>
+        /// <param name="access"></param>
+        /// <param name="serviceType"></param>
+        /// <param name="startType"></param>
+        /// <param name="errorControl"></param>
+        /// <param name="binaryPath"></param>
+        /// <param name="loadOrderGroup"></param>
+        /// <param name="pTagId"></param>
+        /// <param name="dependencies"></param>
+        /// <param name="servicesStartName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr CreateService(IntPtr databaseHandle, string serviceName, string displayName, int access, int serviceType, int startType, int errorControl, string binaryPath, string loadOrderGroup, IntPtr pTagId, string dependencies, string servicesStartName, string password);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="machineName"></param>
+        /// <param name="databaseName"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr OpenSCManager(string machineName, string databaseName, int access);
 
@@ -111,7 +135,7 @@ namespace WindowsServiceInvest.ConfigureTest
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DESCRIPTION serviceDesc);
-        
+
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool EnumDependentServices(IntPtr serviceHandle, int serviceState, IntPtr bufferOfENUM_SERVICE_STATUS, int bufSize, ref int bytesNeeded, ref int numEnumerated);
 
@@ -123,7 +147,7 @@ namespace WindowsServiceInvest.ConfigureTest
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool QueryServiceConfig(IntPtr serviceHandle, IntPtr query_service_config_ptr, int bufferSize, out int bytesNeeded);
-        
+
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool StartService(IntPtr serviceHandle, int argNum, IntPtr argPtrs);
 

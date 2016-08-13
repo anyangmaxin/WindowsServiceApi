@@ -13,13 +13,15 @@ namespace WindowsServiceInvest.ConfigureTest
 {
     public class ServiceControllerExtension
     {
-        internal struct AccountInfo
+        private struct AccountInfo
         {
             public string UserName { get; set; }
             public string Password { get; set; }
             public ServiceAccount Account { get; set; }
         }
-  
+
+        #region 安装服务
+
         /// <summary>
         /// Invocate the Windows API CreateService to create a windows service
         /// </summary>
@@ -31,55 +33,58 @@ namespace WindowsServiceInvest.ConfigureTest
         /// <param name="serviceAccount">The Start Account displayed in Service Manager Control</param>
         /// <param name="dependencies">The other services' name which the creating service dependes on, service name joined by space,like: "service1 service2 service3" </param>
         /// <returns></returns>
-        public static ServiceController CreateService(string serviceName,string displayName,string binPath ,string description,ServiceStartType serviceStartType ,
-             ServiceAccount serviceAccount,string dependencies,bool startAfterRun)
+        private static ServiceController CreateService(string serviceName, string displayName, string binPath,
+            string description, ServiceStartType serviceStartType,
+            ServiceAccount serviceAccount, string dependencies, bool startAfterRun)
         {
             if (CheckServiceExist(serviceName))
             {
                 throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
             }
 
-            IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int)SCManagerAccess.All );
+            IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
             IntPtr zero = IntPtr.Zero;
             if (databaseHandle == zero)
             {
-                throw new Win32Exception ();
+                throw new Win32Exception();
             }
 
-            string servicesStartName=null  ;
-            string password = null  ;
+            string servicesStartName = null;
+            string password = null;
             switch (serviceAccount)
             {
                 case ServiceAccount.LocalService:
-                    {
-                        servicesStartName = @"NT AUTHORITY\LocalService";
-                        break;
-                    }
+                {
+                    servicesStartName = @"NT AUTHORITY\LocalService";
+                    break;
+                }
                 case ServiceAccount.LocalSystem:
-                    {
-                        servicesStartName =null ;
-                        password = null;
-                        break;
-                    }
+                {
+                    servicesStartName = null;
+                    password = null;
+                    break;
+                }
                 case ServiceAccount.NetworkService:
-                    {
-                        servicesStartName = @"NT AUTHORITY\NetworkService";
-                        break;
-                    }
+                {
+                    servicesStartName = @"NT AUTHORITY\NetworkService";
+                    break;
+                }
                 case ServiceAccount.User:
-                    {
-                        AccountInfo accountInfo = GetLoginInfo();
-                        serviceAccount = accountInfo.Account;
-                        password = accountInfo.Password;
-                        servicesStartName = accountInfo.UserName;
-                        break;
-                    }
+                {
+                    AccountInfo accountInfo = GetLoginInfo();
+                    serviceAccount = accountInfo.Account;
+                    password = accountInfo.Password;
+                    servicesStartName = accountInfo.UserName;
+                    break;
+                }
             }
- 
+
             try
             {
-                zero = SafeNativeMethods.CreateService(databaseHandle, serviceName, displayName, (int)ServiceAccess.All, (int)ServiceType.Win32OwnProcess,
-                    (int)serviceStartType, (int)ServiceErrorControlType.Ignore, binPath, null, IntPtr.Zero, dependencies, servicesStartName, password);
+                zero = SafeNativeMethods.CreateService(databaseHandle, serviceName, displayName, (int) ServiceAccess.All,
+                    (int) ServiceType.Win32OwnProcess,
+                    (int) serviceStartType, (int) ServiceErrorControlType.Ignore, binPath, null, IntPtr.Zero,
+                    dependencies, servicesStartName, password);
 
                 if (zero == IntPtr.Zero)
                 {
@@ -90,7 +95,8 @@ namespace WindowsServiceInvest.ConfigureTest
                 {
                     SERVICE_DESCRIPTION serviceDesc = new SERVICE_DESCRIPTION();
                     serviceDesc.description = Marshal.StringToHGlobalUni(description);
-                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int)ServiceErrorControlType.Normal, ref serviceDesc);
+                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int) ServiceErrorControlType.Normal,
+                        ref serviceDesc);
                     Marshal.FreeHGlobal(serviceDesc.description);
 
                     if (!flag)
@@ -99,43 +105,89 @@ namespace WindowsServiceInvest.ConfigureTest
                     }
                 }
             }
-            finally 
+            finally
             {
                 if (zero != IntPtr.Zero)
                 {
                     SafeNativeMethods.CloseServiceHandle(zero);
                 }
-                SafeNativeMethods.CloseServiceHandle(databaseHandle ); 
+                SafeNativeMethods.CloseServiceHandle(databaseHandle);
             }
 
             if (zero != IntPtr.Zero)
             {
                 ServiceController sc = new ServiceController(serviceName);
-                if (startAfterRun)
+                if (startAfterRun &&
+                    (sc.Status == ServiceControllerStatus.Stopped || sc.Status == ServiceControllerStatus.Paused))
+                {
                     sc.Start();
+                }
                 return sc;
             }
-            else
+            return null;
+        }
+
+        private static ServiceController CreateService(string serviceName, string displayName, string binPath,
+            string description, ServiceStartType serviceStartType, ServiceAccount serviceAccount, bool startAfterRun)
+        {
+            return CreateService(serviceName, displayName, binPath, description, serviceStartType, serviceAccount, null,
+                startAfterRun);
+        }
+
+
+        public static ServiceController CreateService(string serviceName, string displayName, string binPath,
+            bool startAfterRun)
+        {
+            return CreateService(serviceName, displayName, binPath, null, ServiceStartType.AutoStart,
+                ServiceAccount.LocalSystem, startAfterRun);
+        }
+
+        #endregion
+
+
+        #region 启动服务
+
+        /// <summary>
+        /// 启动服务
+        /// </summary>
+        /// <param name="serviceName">服务名称</param>
+        /// <param name="args">参数</param>
+        public static string StartService(string serviceName, params string[] args)
+        {
+            bool result = false;
+            IntPtr databaseHandle = IntPtr.Zero;
+            IntPtr zero = IntPtr.Zero;
+
+            databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
+            if (databaseHandle == zero)
             {
-                return null;
+                throw new Win32Exception();
             }
+            zero = SafeNativeMethods.OpenService(databaseHandle, serviceName, (int) SCManagerAccess.All);
+            if (zero != IntPtr.Zero)
+            {
+                ServiceController sc = new ServiceController(serviceName);
+                return sc.Status.ToString();
+            }
+            return "启动失败";
         }
 
-        public static ServiceController CreateService(string serviceName, string displayName, string binPath, string description, ServiceStartType serviceStartType, ServiceAccount serviceAccount, bool startAfterRun)
-        {
-            return CreateService(serviceName, displayName, binPath, description, serviceStartType, serviceAccount,null,startAfterRun);
-        }
+        #endregion
 
-        public static ServiceController CreateService(string serviceName, string displayName, string binPath,bool startAfterRun)
-        {
-            return CreateService(serviceName, displayName, binPath, null, ServiceStartType.AutoStart, ServiceAccount.LocalSystem, startAfterRun);
-        }
 
+
+
+
+        /// <summary>
+        /// 卸载服务
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         public static bool DeleteService(string serviceName)
         {
             if (!CheckServiceExist(serviceName))
             {
-                throw new InvalidOperationException("Windows Service:"+serviceName +" doesn't exist!");
+                throw new InvalidOperationException("Windows Service:" + serviceName + " doesn't exist!");
             }
 
             bool result = false;
@@ -188,9 +240,14 @@ namespace WindowsServiceInvest.ConfigureTest
             }
             catch { }
 
-            return result; 
+            return result;
         }
 
+        /// <summary>
+        /// 根据服务名称获取服务
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         public static ServiceController GetService(string serviceName)
         {
             return new ServiceController(serviceName);
@@ -199,8 +256,8 @@ namespace WindowsServiceInvest.ConfigureTest
         private static AccountInfo GetLoginInfo()
         {
             AccountInfo accountInfo = new AccountInfo();
-           using (ServiceInstallerDialog dialog = new ServiceInstallerDialog())
-            {                
+            using (ServiceInstallerDialog dialog = new ServiceInstallerDialog())
+            {
                 dialog.ShowDialog();
                 switch (dialog.Result)
                 {
@@ -210,20 +267,25 @@ namespace WindowsServiceInvest.ConfigureTest
                         break;
 
                     case ServiceInstallerDialogResult.UseSystem:
-                        accountInfo.UserName  = null;
-                        accountInfo.Password  = null;
-                        accountInfo.Account  = ServiceAccount.LocalSystem;
-                        break ;
+                        accountInfo.UserName = null;
+                        accountInfo.Password = null;
+                        accountInfo.Account = ServiceAccount.LocalSystem;
+                        break;
 
                     case ServiceInstallerDialogResult.Canceled:
                         throw new InvalidOperationException("Must select Account");
-                } 
+                }
             }
 
-           return accountInfo;
-            
+            return accountInfo;
+
         }
 
+        /// <summary>
+        /// 检测服务是否已经存在
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         private static bool CheckServiceExist(string serviceName)
         {
             bool exist = false;

@@ -20,6 +20,10 @@ namespace WebAdministratorService
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 启动
+        /// </summary>
+        /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
           ServerManager serverManager=new ServerManager();
@@ -58,10 +62,11 @@ namespace WebAdministratorService
 
             }
 
-
-
         }
 
+        /// <summary>
+        /// 停止
+        /// </summary>
         protected override void OnStop()
         {
             using (System.IO.StreamWriter sw = new StreamWriter("D:\\log.txt", true))
@@ -69,5 +74,23 @@ namespace WebAdministratorService
                 sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")+"Stop.");
             }
         }
+
+        /// <summary>
+        /// 暂停
+        /// </summary>
+        protected override void OnPause()
+        {
+            
+        }
+
+        /// <summary>
+        /// 继续
+        /// </summary>
+        protected override void OnContinue()
+        {
+            
+        }
+
+
     }
 }
