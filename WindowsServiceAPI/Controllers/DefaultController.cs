@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace WindowsServiceAPI.Controllers
 {
+    [RoutePrefix("api/Default")]
     public class DefaultController : ApiController
     {
         // GET: api/Default
@@ -26,9 +27,26 @@ namespace WindowsServiceAPI.Controllers
         }
 
         // POST: api/Default
-        public void Post([FromBody]string value)
+        public string Post([FromBody]string value)
         {
+            return JsonConvert.SerializeObject(value);
         }
+
+        [HttpPost]
+        [Route("Test")]
+        public string Test(string value)
+        {
+            return JsonConvert.SerializeObject(value);
+        }
+
+
+        [HttpPost]
+        [Route("PostInstall")]
+        public string PostInstall([FromBody]string option)
+        {
+            return JsonConvert.SerializeObject(option == "install" ? "安装请求" : "卸载请求");
+        }
+
 
         // PUT: api/Default/5
         public void Put(int id, [FromBody]string value)
