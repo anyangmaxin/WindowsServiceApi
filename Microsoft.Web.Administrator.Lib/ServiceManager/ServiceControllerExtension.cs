@@ -201,71 +201,121 @@ namespace WindowsServiceInvest.ConfigureTest
         }
         #endregion
 
-
+        #region 卸载服务
         /// <summary>
-        /// 卸载服务
+        /// Takes a service name and tries to stop and then uninstall the windows serviceError
         /// </summary>
-        /// <param name="serviceName"></param>
-        /// <returns></returns>
-        public static bool DeleteService(string serviceName)
+        /// <param name="serviceName">The windows service name to uninstall</param>
+        public static string Uninstall(string serviceName)
         {
-            if (!CheckServiceExist(serviceName))
-            {
-                throw new InvalidOperationException("Windows Service:" + serviceName + " doesn't exist!");
-            }
-
-            bool result = false;
-            IntPtr databaseHandle = IntPtr.Zero;
-            IntPtr zero = IntPtr.Zero;
-
-            databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int)SCManagerAccess.All);
-            if (databaseHandle == zero)
-            {
-                throw new Win32Exception();
-            }
+            IntPtr scm =SafeNativeMethods.OpenSCManager(null,null,(int)SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
 
             try
             {
-                zero = SafeNativeMethods.OpenService(databaseHandle, serviceName, (int)ServiceAccess.All);
-                if (zero == IntPtr.Zero)
+                IntPtr service = SafeNativeMethods.OpenService(scm, serviceName, SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
+                if (service == IntPtr.Zero) return "服务尚未安装";
+                // throw new ApplicationException("Service not installed.");
+
+                try
                 {
-                    throw new Win32Exception();
+                    StopService(service);
+                    if (!SafeNativeMethods.DeleteService(service))
+                        return "Could not delete service " + Marshal.GetLastWin32Error();
+                    //throw new ApplicationException("Could not delete service " + Marshal.GetLastWin32Error());
+
+                    return "卸载成功";
                 }
-                result = SafeNativeMethods.DeleteService(zero);
+                finally
+                {
+                    SafeNativeMethods.CloseServiceHandle(service);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
             }
             finally
             {
-                if (zero != IntPtr.Zero)
-                {
-                    SafeNativeMethods.CloseServiceHandle(zero);
-                }
-                SafeNativeMethods.CloseServiceHandle(databaseHandle);
+               SafeNativeMethods.CloseServiceHandle(scm);
             }
+        }
+        #endregion
 
+        #region
 
-            try
+        /// <summary>
+        /// Stops the provided windows service
+        /// </summary>
+        /// <param name="service">The handle to the windows service</param>
+        private static void StopService(IntPtr service)
+        {
+            var status = new SERVICE_STATUS();
+          var handler=  SafeNativeMethods.ControlService(service, ServiceAccess.Stop, status);
+            if (handler <= 0)
             {
-                using (ServiceController sc = new ServiceController(serviceName))
-                {
-                    if (sc.Status != ServiceControllerStatus.Stopped)
-                    {
-                        sc.Stop();
-                        sc.Refresh();
-                        int num = 10;
-                        while (sc.Status != ServiceControllerStatus.Stopped && num > 0)
-                        {
-                            Thread.Sleep(0x3e8);
-                            sc.Refresh();
-                            num--;
-                        }
+                throw new ApplicationException("Service not exists!");
+            }
+            var changedStatus = WaitForServiceStatus(service, ServiceState.StopPending, ServiceState.Stopped);
+            if (!changedStatus)
+                throw new ApplicationException("Unable to stop service");
+        }
+        #endregion
 
+
+        #region  WaitForServiceStatus
+        /// <summary>
+        /// Returns true when the service status has been changes from wait status to desired status
+        /// ,this method waits around 10 seconds for this operation.
+        /// </summary>
+        /// <param name="service">The handle to the service</param>
+        /// <param name="waitStatus">The current state of the service</param>
+        /// <param name="desiredStatus">The desired state of the service</param>
+        /// <returns>bool if the service has successfully changed states within the allowed timeline</returns>
+        private static bool WaitForServiceStatus(IntPtr service, ServiceState waitStatus, ServiceState desiredStatus)
+        {
+            var status = new SERVICE_STATUS();
+
+          SafeNativeMethods.QueryServiceStatus(service, status);
+            if (status.currentState == (int) desiredStatus) return true;
+
+            int dwStartTickCount = Environment.TickCount;
+            int dwOldCheckPoint = status.checkPoint;
+
+            while (status.currentState == (int) waitStatus)
+            {
+                // Do not wait longer than the wait hint. A good interval is
+                // one tenth the wait hint, but no less than 1 second and no
+                // more than 10 seconds.
+
+                int dwWaitTime = status.waitHint / 10;
+
+                if (dwWaitTime < 1000) dwWaitTime = 1000;
+                else if (dwWaitTime > 10000) dwWaitTime = 10000;
+
+                Thread.Sleep(dwWaitTime);
+
+                // Check the status again.
+
+                if (SafeNativeMethods.QueryServiceStatus(service, status) == 0) break;
+
+                if (status.checkPoint > dwOldCheckPoint)
+                {
+                    // The service is making progress.
+                    dwStartTickCount = Environment.TickCount;
+                    dwOldCheckPoint = status.checkPoint;
+                }
+                else
+                {
+                    if (Environment.TickCount - dwStartTickCount > status.waitHint)
+                    {
+                        // No progress made within the wait hint
+                        break;
                     }
                 }
             }
-            catch { }
-
-            return result;
+            return (status.currentState == (int) desiredStatus);
         }
+        #endregion
 
         /// <summary>
         /// 根据服务名称获取服务

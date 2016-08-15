@@ -127,8 +127,18 @@ namespace WindowsServiceInvest.ConfigureTest
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool DeleteService(IntPtr serviceHandle);
 
+        #region ControlService
+        [DllImport("advapi32.dll")]
+        public static extern int ControlService(IntPtr hService, ServiceAccess dwControl, SERVICE_STATUS lpServiceStatus);
+        #endregion
+
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success), DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool CloseServiceHandle(IntPtr handle);
+
+        #region QueryServiceStatus
+        [DllImport("advapi32.dll")]
+        public static extern int QueryServiceStatus(IntPtr hService, SERVICE_STATUS lpServiceStatus);
+        #endregion
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DESCRIPTION serviceDesc);

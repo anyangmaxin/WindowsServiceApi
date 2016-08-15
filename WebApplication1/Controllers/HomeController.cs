@@ -49,12 +49,8 @@ namespace WebApplication1.Controllers
         public ActionResult UninstallService()
         {
 
-            ViewBag.Status = "已卸载";
-            ViewBag.ServiceName = "不存在";
-            if (WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.DeleteService("ServiceTest"))
-            {
-
-            }
+            ViewBag.Status = "";
+            ViewBag.ServiceName = WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.Uninstall("ServiceTest");
             return View("GetData");
 
         }
