@@ -38,7 +38,8 @@ namespace WindowsServiceInvest.ConfigureTest
         {
             if (CheckServiceExist(serviceName))
             {
-                throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
+                return new ServiceController(serviceName);
+                // throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
             }
 
             IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
@@ -147,31 +148,57 @@ namespace WindowsServiceInvest.ConfigureTest
         #region 启动服务
 
         /// <summary>
-        /// 启动服务
+        /// Takes a service name and starts it
         /// </summary>
-        /// <param name="serviceName">服务名称</param>
-        /// <param name="args">参数</param>
-        public static string StartService(string serviceName, params string[] args)
+        /// <param name="serviceName">The service name</param>
+        public static string StartService(string serviceName)
         {
-            bool result = false;
-            IntPtr databaseHandle = IntPtr.Zero;
-            IntPtr zero = IntPtr.Zero;
+            IntPtr scm = SafeNativeMethods.OpenSCManager(null,null,(int)SafeNativeMethods.SC_MANAGER_CONNECT);
 
-            databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
-            if (databaseHandle == zero)
+            try
             {
-                throw new Win32Exception();
+                //获取服务实例
+                IntPtr service = SafeNativeMethods.OpenService(scm, serviceName, SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
+                if (service == IntPtr.Zero)
+                {
+                    return "服务不存在";
+                }
+
+                try
+                {
+                    return StartService(service) ? "成功" : "失败";
+                }
+                finally
+                {
+                    SafeNativeMethods.CloseServiceHandle(service);
+                }
             }
-            zero = SafeNativeMethods.OpenService(databaseHandle, serviceName, (int) SCManagerAccess.All);
-            if (zero != IntPtr.Zero)
+            catch (Exception ex)
             {
-                ServiceController sc = new ServiceController(serviceName);
-                
-                return sc.Status.ToString();
+                return ex.Message;
             }
-            return "启动失败";
+            finally
+            {
+                SafeNativeMethods.CloseServiceHandle(scm);
+            }
         }
 
+
+        /// <summary>
+        /// Stars the provided windows service
+        /// </summary>
+        /// <param name="service">The handle to the windows service</param>
+        private static bool StartService(IntPtr service)
+        {
+            var status = new SERVICE_STATUS();
+            int result =SafeNativeMethods.StartService(service,0,0);
+            return result > 0;
+            //if (result == 0)
+            //    throw new ApplicationException("Unable to start service");
+            //var changedStatus = WaitForServiceStatus(service, ServiceState.StartPending, ServiceState.Running);
+            //if (!changedStatus)
+            //    throw new ApplicationException("Unable to start service");
+        }
         #endregion
 
 

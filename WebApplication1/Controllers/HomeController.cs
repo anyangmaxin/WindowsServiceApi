@@ -37,7 +37,7 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult StartService(string value)
         {
-            ViewBag.result = WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.StartService("ServiceTest", new string[] { value });
+            ViewBag.result = WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.StartService("ServiceTest");
             ViewBag.args = value;
             return View();
         }

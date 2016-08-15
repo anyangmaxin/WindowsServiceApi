@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.ConstrainedExecution;
 
@@ -148,8 +145,10 @@ namespace WindowsServiceInvest.ConfigureTest
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool QueryServiceConfig(IntPtr serviceHandle, IntPtr query_service_config_ptr, int bufferSize, out int bytesNeeded);
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool StartService(IntPtr serviceHandle,string serviceName,string[] args, IntPtr argPtrs);
+        #region StartService
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern int StartService(IntPtr hService, int dwNumServiceArgs, int lpServiceArgVectors);
+        #endregion
 
         #endregion
 

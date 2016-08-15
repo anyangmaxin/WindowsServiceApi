@@ -55,8 +55,7 @@ namespace Microsoft.Web.Administrator
             int id = Convert.ToInt32(read);
             var a=siteCollection.SingleOrDefault(m => m.Id == id);
            // a.Stop();
-            
-           // a.Bindings.Add("Host", "test.baidu.com");
+
            //绑定域名
             a.Bindings.Add("*:80:test.baidu.com", "http");
             //*:80:admin.localtgjs.com

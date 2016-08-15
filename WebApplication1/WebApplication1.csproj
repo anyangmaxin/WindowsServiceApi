@@ -142,10 +142,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceManager\SafeNativeMethods.cs" />
-    <Compile Include="ServiceManager\ServiceControllerExtension.cs" />
-    <Compile Include="ServiceManager\UnSafeNativeMethods.cs" />
-    <Compile Include="ServiceManager\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
