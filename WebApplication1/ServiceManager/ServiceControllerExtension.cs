@@ -39,14 +39,16 @@ namespace WindowsServiceInvest.ConfigureTest
         {
             if (CheckServiceExist(serviceName))
             {
-                throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
+                //  throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
+                throw new Exception("Windows Service:" + serviceName + " has existed!");
             }
 
             IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
             IntPtr zero = IntPtr.Zero;
             if (databaseHandle == zero)
             {
-                throw new Win32Exception();
+                // throw new Win32Exception();
+                throw new Exception("databaseHandle:" + zero);
             }
 
             string servicesStartName = null;
@@ -95,10 +97,8 @@ namespace WindowsServiceInvest.ConfigureTest
                 {
                     SERVICE_DESCRIPTION serviceDesc = new SERVICE_DESCRIPTION();
                     serviceDesc.description = Marshal.StringToHGlobalUni(description);
-                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int) ServiceErrorControlType.Normal,
-                        ref serviceDesc);
+                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int) ServiceErrorControlType.Normal,ref serviceDesc);
                     Marshal.FreeHGlobal(serviceDesc.description);
-
                     if (!flag)
                     {
                         throw new Win32Exception();
@@ -120,7 +120,8 @@ namespace WindowsServiceInvest.ConfigureTest
                 if (startAfterRun &&
                     (sc.Status == ServiceControllerStatus.Stopped || sc.Status == ServiceControllerStatus.Paused))
                 {
-                    sc.Start();
+                      sc.Start();
+                    //sc.Start(new []{"这是参数"});
                 }
                 return sc;
             }
@@ -134,12 +135,17 @@ namespace WindowsServiceInvest.ConfigureTest
                 startAfterRun);
         }
 
-
-        public static ServiceController CreateService(string serviceName, string displayName, string binPath,
-            bool startAfterRun)
+        /// <summary>
+        /// 安装服务
+        /// </summary>
+        /// <param name="serviceName">服务名称</param>
+        /// <param name="displayName">显示名称</param>
+        /// <param name="binPath">服务所在路径</param>
+        /// <param name="startAfterRun">是否自动启动</param>
+        /// <returns></returns>
+        public static ServiceController CreateService(string serviceName, string displayName, string binPath,bool startAfterRun)
         {
-            return CreateService(serviceName, displayName, binPath, null, ServiceStartType.AutoStart,
-                ServiceAccount.LocalSystem, startAfterRun);
+            return CreateService(serviceName, displayName, binPath, null, ServiceStartType.AutoStart,ServiceAccount.LocalSystem, startAfterRun);
         }
 
         #endregion
@@ -161,13 +167,18 @@ namespace WindowsServiceInvest.ConfigureTest
             databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
             if (databaseHandle == zero)
             {
-                throw new Win32Exception();
+                //throw new Win32Exception();
+                return "服务器错误";
             }
             zero = SafeNativeMethods.OpenService(databaseHandle, serviceName, (int) SCManagerAccess.All);
             if (zero != IntPtr.Zero)
             {
                 ServiceController sc = new ServiceController(serviceName);
-                return sc.Status.ToString();
+                if (sc != null)
+                {
+                    sc.Start(args);
+                    return sc.Status.ToString();
+                }
             }
             return "启动失败";
         }

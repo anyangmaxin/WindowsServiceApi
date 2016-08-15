@@ -15,9 +15,13 @@ namespace WebAdministratorService
 {
     public partial class ServiceTest : ServiceBase
     {
-        public ServiceTest()
+        public string ParamTest { get; set; }
+
+        public ServiceTest(string paramTest)
         {
             InitializeComponent();
+            ParamTest = paramTest;
+
         }
 
         /// <summary>
@@ -26,7 +30,11 @@ namespace WebAdministratorService
         /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
-          ServerManager serverManager=new ServerManager();
+            if (args.Length > 0)
+            {
+                ParamTest = args[0];
+            }
+            ServerManager serverManager = new ServerManager();
             using (System.IO.StreamWriter sw = new StreamWriter("D:\\log.txt", true))
             {
                 SiteCollection siteCollection = serverManager.Sites;
@@ -35,11 +43,11 @@ namespace WebAdministratorService
                     sw.WriteLine(site.Name);
                 }
 
-                var testSite=siteCollection.SingleOrDefault(m => m.Id == 1);
+                var testSite = siteCollection.SingleOrDefault(m => m.Id == 1);
                 if (testSite != null)
                 {
+                    //绑定域名
                     testSite.Bindings.Add("*:80:test.mydomain.com", "http");
-                    testSite.Bindings.Add("*:80:test.mydomain2.com", "http");
                     sw.WriteLine("1绑定域名成功");
                 }
                 else
@@ -51,15 +59,15 @@ namespace WebAdministratorService
                 if (testSite2 != null)
                 {
                     testSite2.Bindings.Add("*:80:test.mydomain100.com", "http");
-                
+
                     sw.WriteLine("100绑定域名成功");
                 }
                 else
                 {
                     sw.WriteLine("id=100的站点未发现");
                 }
+                sw.WriteLine("这里是参数：{0}",ParamTest);
                 serverManager.CommitChanges();
-
             }
 
         }
@@ -71,7 +79,7 @@ namespace WebAdministratorService
         {
             using (System.IO.StreamWriter sw = new StreamWriter("D:\\log.txt", true))
             {
-                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")+"Stop.");
+                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "Stop.");
             }
         }
 
@@ -80,7 +88,7 @@ namespace WebAdministratorService
         /// </summary>
         protected override void OnPause()
         {
-            
+
         }
 
         /// <summary>
@@ -88,7 +96,7 @@ namespace WebAdministratorService
         /// </summary>
         protected override void OnContinue()
         {
-            
+
         }
 
 

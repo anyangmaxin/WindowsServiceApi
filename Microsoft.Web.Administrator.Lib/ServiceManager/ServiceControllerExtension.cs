@@ -33,8 +33,7 @@ namespace WindowsServiceInvest.ConfigureTest
         /// <param name="serviceAccount">The Start Account displayed in Service Manager Control</param>
         /// <param name="dependencies">The other services' name which the creating service dependes on, service name joined by space,like: "service1 service2 service3" </param>
         /// <returns></returns>
-        private static ServiceController CreateService(string serviceName, string displayName, string binPath,
-            string description, ServiceStartType serviceStartType,
+        private static ServiceController CreateService(string serviceName, string displayName, string binPath,string description, ServiceStartType serviceStartType,
             ServiceAccount serviceAccount, string dependencies, bool startAfterRun)
         {
             if (CheckServiceExist(serviceName))
@@ -109,7 +108,7 @@ namespace WindowsServiceInvest.ConfigureTest
             {
                 if (zero != IntPtr.Zero)
                 {
-                    SafeNativeMethods.CloseServiceHandle(zero);
+                    SafeNativeMethods.CloseServiceHandle(zero);//关闭
                 }
                 SafeNativeMethods.CloseServiceHandle(databaseHandle);
             }
@@ -167,15 +166,13 @@ namespace WindowsServiceInvest.ConfigureTest
             if (zero != IntPtr.Zero)
             {
                 ServiceController sc = new ServiceController(serviceName);
+                
                 return sc.Status.ToString();
             }
             return "启动失败";
         }
 
         #endregion
-
-
-
 
 
         /// <summary>

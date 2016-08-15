@@ -12,41 +12,35 @@ namespace WindowsServiceAPI.Controllers
     [RoutePrefix("api/Default")]
     public class DefaultController : ApiController
     {
+        #region Get
+
         // GET: api/Default
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new string[] {"value1", "value2"};
         }
 
         // GET: api/Default/5
         public string Get(int id)
         {
+            var result = JsonConvert.SerializeObject(new {id});
+            return result;
+        }
+        [HttpGet]
+        public string GetTest(string id)
+        {
             var result = JsonConvert.SerializeObject(new { id });
             return result;
-
         }
+
+        #endregion
+
 
         // POST: api/Default
         public string Post([FromBody]string value)
         {
             return JsonConvert.SerializeObject(value);
         }
-
-        [HttpPost]
-        [Route("Test")]
-        public string Test(string value)
-        {
-            return JsonConvert.SerializeObject(value);
-        }
-
-
-        [HttpPost]
-        [Route("PostInstall")]
-        public string PostInstall([FromBody]string option)
-        {
-            return JsonConvert.SerializeObject(option == "install" ? "安装请求" : "卸载请求");
-        }
-
 
         // PUT: api/Default/5
         public void Put(int id, [FromBody]string value)

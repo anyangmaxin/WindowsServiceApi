@@ -149,7 +149,7 @@ namespace WindowsServiceInvest.ConfigureTest
         public static extern bool QueryServiceConfig(IntPtr serviceHandle, IntPtr query_service_config_ptr, int bufferSize, out int bytesNeeded);
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool StartService(IntPtr serviceHandle, int argNum, IntPtr argPtrs);
+        public static extern bool StartService(IntPtr serviceHandle,string serviceName,string[] args, IntPtr argPtrs);
 
         #endregion
 

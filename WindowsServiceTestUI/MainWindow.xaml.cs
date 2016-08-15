@@ -73,7 +73,6 @@ namespace WindowsServiceTestUI
         {
             ServiceController serviceController = new ServiceController("ServiceTest");
             serviceController.Start();
-
             label.Content = serviceController.Status.ToString();
         }
 

@@ -12,12 +12,17 @@ namespace WebAdministratorService
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
-        static void Main()
+        static void Main(string[] args)
         {
+            string ParamTest = "";
+            if (args.Length > 0)
+            {
+                ParamTest = args[0];
+            }
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new ServiceTest()
+                new ServiceTest(ParamTest)
             };
             ServiceBase.Run(ServicesToRun);
         }

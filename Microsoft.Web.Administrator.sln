@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceTestUI", "Win
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceAPI", "WindowsServiceAPI\WindowsServiceAPI.csproj", "{2353323F-2D82-4EEB-8A38-042B768BFF60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitHubWindowsService", "GitHubWindowsService\GitHubWindowsService.csproj", "{26AB1CC3-4465-4328-A44C-3B2C04E26712}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{2353323F-2D82-4EEB-8A38-042B768BFF60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2353323F-2D82-4EEB-8A38-042B768BFF60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2353323F-2D82-4EEB-8A38-042B768BFF60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26AB1CC3-4465-4328-A44C-3B2C04E26712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26AB1CC3-4465-4328-A44C-3B2C04E26712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26AB1CC3-4465-4328-A44C-3B2C04E26712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26AB1CC3-4465-4328-A44C-3B2C04E26712}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

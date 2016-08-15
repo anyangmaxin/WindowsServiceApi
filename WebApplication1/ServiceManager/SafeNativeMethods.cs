@@ -124,6 +124,13 @@ namespace WindowsServiceInvest.ConfigureTest
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr OpenSCManager(string machineName, string databaseName, int access);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="databaseHandle"></param>
+        /// <param name="serviceName"></param>
+        /// <param name="access"></param>
+        /// <returns></returns>
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr OpenService(IntPtr databaseHandle, string serviceName, int access);
 
