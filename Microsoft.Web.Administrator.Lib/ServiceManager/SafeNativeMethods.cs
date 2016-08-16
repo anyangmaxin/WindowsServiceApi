@@ -9,6 +9,8 @@ namespace WindowsServiceInvest.ConfigureTest
         #region const
 
         public const System.Int32 STANDARD_RIGHTS_REQUIRED = 0xF0000;
+        
+
         // Service Control Manager object specific access types  
         public const System.Int32 SC_MANAGER_CONNECT = 0x0001;
         public const System.Int32 SC_MANAGER_CREATE_SERVICE = 0x0002;
@@ -90,6 +92,9 @@ namespace WindowsServiceInvest.ConfigureTest
         #endregion
 
         #region methods
+
+
+
 
         /// <summary>
         /// 创建服务

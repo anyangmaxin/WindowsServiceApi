@@ -43,7 +43,6 @@ namespace WindowsServiceTestUI
             process.StartInfo.CreateNoWindow = true;
             process.Start();
             System.Environment.CurrentDirectory = CurrentDirectory;
-            
      
         }
 

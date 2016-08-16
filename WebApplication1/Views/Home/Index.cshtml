@@ -6,21 +6,9 @@
 
 <h2>服务操作</h2>
 
-@using (Html.BeginForm("GetData", "Home", FormMethod.Post))
-{
-
-    <input type="submit" value="安装服务" />
-}
-
-<hr/>
 
 @using (Html.BeginForm("StartService", "Home", FormMethod.Post))
 {
     @Html.TextBox("value")
     <input type="submit" value="启动服务" />
-}
-<hr/>
-@using (Html.BeginForm("UninstallService", "Home", FormMethod.Post))
-{
-    <input type="submit" value="卸载服务" />
 }

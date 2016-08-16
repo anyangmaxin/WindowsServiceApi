@@ -33,7 +33,7 @@ namespace WindowsServiceInvest.ConfigureTest
         /// <param name="serviceAccount">The Start Account displayed in Service Manager Control</param>
         /// <param name="dependencies">The other services' name which the creating service dependes on, service name joined by space,like: "service1 service2 service3" </param>
         /// <returns></returns>
-        private static ServiceController CreateService(string serviceName, string displayName, string binPath,string description, ServiceStartType serviceStartType,
+        private static ServiceController CreateService(string serviceName, string displayName, string binPath, string description, ServiceStartType serviceStartType,
             ServiceAccount serviceAccount, string dependencies, bool startAfterRun)
         {
             if (CheckServiceExist(serviceName))
@@ -42,7 +42,7 @@ namespace WindowsServiceInvest.ConfigureTest
                 // throw new InvalidOperationException("Windows Service:" + serviceName + " has existed!");
             }
 
-            IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int) SCManagerAccess.All);
+            IntPtr databaseHandle = SafeNativeMethods.OpenSCManager(null, null, (int)SCManagerAccess.All);
             IntPtr zero = IntPtr.Zero;
             if (databaseHandle == zero)
             {
@@ -54,36 +54,36 @@ namespace WindowsServiceInvest.ConfigureTest
             switch (serviceAccount)
             {
                 case ServiceAccount.LocalService:
-                {
-                    servicesStartName = @"NT AUTHORITY\LocalService";
-                    break;
-                }
+                    {
+                        servicesStartName = @"NT AUTHORITY\LocalService";
+                        break;
+                    }
                 case ServiceAccount.LocalSystem:
-                {
-                    servicesStartName = null;
-                    password = null;
-                    break;
-                }
+                    {
+                        servicesStartName = null;
+                        password = null;
+                        break;
+                    }
                 case ServiceAccount.NetworkService:
-                {
-                    servicesStartName = @"NT AUTHORITY\NetworkService";
-                    break;
-                }
+                    {
+                        servicesStartName = @"NT AUTHORITY\NetworkService";
+                        break;
+                    }
                 case ServiceAccount.User:
-                {
-                    AccountInfo accountInfo = GetLoginInfo();
-                    serviceAccount = accountInfo.Account;
-                    password = accountInfo.Password;
-                    servicesStartName = accountInfo.UserName;
-                    break;
-                }
+                    {
+                        AccountInfo accountInfo = GetLoginInfo();
+                        serviceAccount = accountInfo.Account;
+                        password = accountInfo.Password;
+                        servicesStartName = accountInfo.UserName;
+                        break;
+                    }
             }
 
             try
             {
-                zero = SafeNativeMethods.CreateService(databaseHandle, serviceName, displayName, (int) ServiceAccess.All,
-                    (int) ServiceType.Win32OwnProcess,
-                    (int) serviceStartType, (int) ServiceErrorControlType.Ignore, binPath, null, IntPtr.Zero,
+                zero = SafeNativeMethods.CreateService(databaseHandle, serviceName, displayName, (int)ServiceAccess.All,
+                    (int)ServiceType.Win32OwnProcess,
+                    (int)serviceStartType, (int)ServiceErrorControlType.Ignore, binPath, null, IntPtr.Zero,
                     dependencies, servicesStartName, password);
 
                 if (zero == IntPtr.Zero)
@@ -95,7 +95,7 @@ namespace WindowsServiceInvest.ConfigureTest
                 {
                     SERVICE_DESCRIPTION serviceDesc = new SERVICE_DESCRIPTION();
                     serviceDesc.description = Marshal.StringToHGlobalUni(description);
-                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int) ServiceErrorControlType.Normal,
+                    bool flag = SafeNativeMethods.ChangeServiceConfig2(zero, (int)ServiceErrorControlType.Normal,
                         ref serviceDesc);
                     Marshal.FreeHGlobal(serviceDesc.description);
 
@@ -135,12 +135,13 @@ namespace WindowsServiceInvest.ConfigureTest
         }
 
 
-        public static ServiceController CreateService(string serviceName, string displayName, string binPath,
+        public static ServiceController Install(string serviceName, string displayName, string binPath,
             bool startAfterRun)
         {
             return CreateService(serviceName, displayName, binPath, null, ServiceStartType.AutoStart,
                 ServiceAccount.LocalSystem, startAfterRun);
         }
+
 
         #endregion
 
@@ -153,7 +154,7 @@ namespace WindowsServiceInvest.ConfigureTest
         /// <param name="serviceName">The service name</param>
         public static string StartService(string serviceName)
         {
-            IntPtr scm = SafeNativeMethods.OpenSCManager(null,null,(int)SafeNativeMethods.SC_MANAGER_CONNECT);
+            IntPtr scm = SafeNativeMethods.OpenSCManager(null, null, (int)SafeNativeMethods.SC_MANAGER_CONNECT);
 
             try
             {
@@ -185,13 +186,52 @@ namespace WindowsServiceInvest.ConfigureTest
 
 
         /// <summary>
+        /// Takes a service name and starts it
+        /// </summary>
+        /// <param name="serviceName">The service name</param>
+        public static string StartService(string serviceName,string[] args)
+        {
+            IntPtr scm = SafeNativeMethods.OpenSCManager(null, null, (int)SafeNativeMethods.SC_MANAGER_CONNECT);
+
+            try
+            {
+                //获取服务实例
+                IntPtr service = SafeNativeMethods.OpenService(scm, serviceName, SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
+                if (service == IntPtr.Zero)
+                {
+                    return "服务不存在";
+                }
+
+                try
+                {
+                    ServiceController sc=new ServiceController(serviceName);
+                    sc.Start(args);
+
+                    return string.Format("服务：{0}，启动成功，参数：{1}",serviceName,string.Join(",",args));
+                }
+                finally
+                {
+                    SafeNativeMethods.CloseServiceHandle(service);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+            finally
+            {
+                SafeNativeMethods.CloseServiceHandle(scm);
+            }
+        }
+
+        /// <summary>
         /// Stars the provided windows service
         /// </summary>
         /// <param name="service">The handle to the windows service</param>
         private static bool StartService(IntPtr service)
         {
             var status = new SERVICE_STATUS();
-            int result =SafeNativeMethods.StartService(service,0,0);
+            int result = SafeNativeMethods.StartService(service, 0, 0);
             return result > 0;
             //if (result == 0)
             //    throw new ApplicationException("Unable to start service");
@@ -199,6 +239,9 @@ namespace WindowsServiceInvest.ConfigureTest
             //if (!changedStatus)
             //    throw new ApplicationException("Unable to start service");
         }
+
+
+        
         #endregion
 
         #region 卸载服务
@@ -208,7 +251,7 @@ namespace WindowsServiceInvest.ConfigureTest
         /// <param name="serviceName">The windows service name to uninstall</param>
         public static string Uninstall(string serviceName)
         {
-            IntPtr scm =SafeNativeMethods.OpenSCManager(null,null,(int)SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
+            IntPtr scm = SafeNativeMethods.OpenSCManager(null, null, (int)SafeNativeMethods.SC_MANAGER_ALL_ACCESS);
 
             try
             {
@@ -236,7 +279,7 @@ namespace WindowsServiceInvest.ConfigureTest
             }
             finally
             {
-               SafeNativeMethods.CloseServiceHandle(scm);
+                SafeNativeMethods.CloseServiceHandle(scm);
             }
         }
         #endregion
@@ -250,11 +293,7 @@ namespace WindowsServiceInvest.ConfigureTest
         private static void StopService(IntPtr service)
         {
             var status = new SERVICE_STATUS();
-          var handler=  SafeNativeMethods.ControlService(service, ServiceAccess.Stop, status);
-            if (handler <= 0)
-            {
-                throw new ApplicationException("Service not exists!");
-            }
+            var handler = SafeNativeMethods.ControlService(service, ServiceAccess.Stop, status);
             var changedStatus = WaitForServiceStatus(service, ServiceState.StopPending, ServiceState.Stopped);
             if (!changedStatus)
                 throw new ApplicationException("Unable to stop service");
@@ -275,13 +314,13 @@ namespace WindowsServiceInvest.ConfigureTest
         {
             var status = new SERVICE_STATUS();
 
-          SafeNativeMethods.QueryServiceStatus(service, status);
-            if (status.currentState == (int) desiredStatus) return true;
+            SafeNativeMethods.QueryServiceStatus(service, status);
+            if (status.currentState == (int)desiredStatus) return true;
 
             int dwStartTickCount = Environment.TickCount;
             int dwOldCheckPoint = status.checkPoint;
 
-            while (status.currentState == (int) waitStatus)
+            while (status.currentState == (int)waitStatus)
             {
                 // Do not wait longer than the wait hint. A good interval is
                 // one tenth the wait hint, but no less than 1 second and no
@@ -313,7 +352,7 @@ namespace WindowsServiceInvest.ConfigureTest
                     }
                 }
             }
-            return (status.currentState == (int) desiredStatus);
+            return (status.currentState == (int)desiredStatus);
         }
         #endregion
 

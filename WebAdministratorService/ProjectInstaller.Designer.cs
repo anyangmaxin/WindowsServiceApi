@@ -40,6 +40,7 @@
             // serviceInstaller1
             // 
             this.serviceInstaller1.ServiceName = "ServiceTest";
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 
@@ -50,8 +51,7 @@
         }
 
         #endregion
-
-        private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
-        private System.ServiceProcess.ServiceInstaller serviceInstaller1;
+        protected System.ServiceProcess.ServiceInstaller serviceInstaller1;
+        protected System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
     }
 }

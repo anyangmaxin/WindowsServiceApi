@@ -200,6 +200,7 @@ namespace WindowsServiceInvest.ConfigureTest
         /// </summary>
         All = 0x013F
     }
+ 
 
     public enum ServiceStartType
     {
