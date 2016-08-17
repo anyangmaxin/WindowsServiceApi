@@ -24,10 +24,11 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult StartService(string value)
+        public ActionResult StartService(FormCollection collection)
         {
-            ViewBag.result = WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.StartService("ServiceTest", new string[] { value });
-            ViewBag.args = value;
+
+            ViewBag.result = WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.StartService("ServiceTest", new string[] { collection[0], collection[1] });
+            ViewBag.args = string.Join(",",collection);
             return View();
         }
 

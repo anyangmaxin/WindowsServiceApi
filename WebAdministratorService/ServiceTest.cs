@@ -15,13 +15,21 @@ namespace WebAdministratorService
 {
     public partial class ServiceTest : ServiceBase
     {
-        public string ParamTest { get; set; }
+        /// <summary>
+        /// 需要绑定域名的站点名称
+        /// </summary>
+        private string SiteName { get; set; }
 
-        public ServiceTest(string paramTest)
+        /// <summary>
+        /// 需要绑定的域名
+        /// </summary>
+        private string DomainName { get; set; }
+
+
+
+        public ServiceTest()
         {
             InitializeComponent();
-            ParamTest = paramTest;
-
         }
 
         /// <summary>
@@ -30,44 +38,53 @@ namespace WebAdministratorService
         /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
-            if (args.Length > 0)
-            {
-                ParamTest = args[0];
-            }
             ServerManager serverManager = new ServerManager();
             using (System.IO.StreamWriter sw = new StreamWriter("D:\\log.txt", true))
             {
-                SiteCollection siteCollection = serverManager.Sites;
-                foreach (Site site in siteCollection)
+                if (args.Length >= 2)
                 {
-                    sw.WriteLine(site.Name);
-                }
+                    try
+                    {
+                        SiteName = args[0];
+                        DomainName = args[1];
+                        SiteCollection siteCollection = serverManager.Sites;
+                        if (siteCollection.All(m => m.Name != SiteName))
+                        {
+                            sw.WriteLine("站点:{0}，不存在.\r\n{1}", SiteName,DateTime.Now);
+                            this.OnStop();
+                            return;
+                        }
+                        var site = siteCollection.SingleOrDefault(m => m.Name == SiteName);
 
-                var testSite = siteCollection.SingleOrDefault(m => m.Id == 1);
-                if (testSite != null)
-                {
-                    //绑定域名
-                    testSite.Bindings.Add("*:80:test.mydomain.com", "http");
-                    sw.WriteLine("1绑定域名成功");
+                        //获取该站点上已经绑定的域名
+                        var domains = site.Bindings;
+                        if (domains.Any(m => m.Host == DomainName))
+                        {
+                            sw.WriteLine("站点:{0}，上已经绑定了域名:{1}\r\n{2}", SiteName, DomainName,DateTime.Now);
+                            this.OnStop();
+                            return;
+                        }
+                        site.Bindings.Add(string.Format("*:80:{0}", DomainName), "http");
+                        serverManager.CommitChanges();
+                        sw.WriteLine("站点:{0}，绑定域名:{1}，成功。\r\n{2}", SiteName, DomainName,DateTime.Now);
+                    }
+                    catch (Exception ex)
+                    {
+                        sw.WriteLine("向站点：{0}，绑定域名：{1}，时出错，错误信息：{2} \r\n{3}", SiteName,DomainName,ex.Message,DateTime.Now);
+                    }
+                    finally
+                    {
+                      
+                    }
+
                 }
                 else
                 {
-                    sw.WriteLine("id=1的站点未发现");
+                    sw.WriteLine("参数不符合要求：{0}。\r\n{1}", string.Join(",", args),DateTime.Now);
+                
                 }
+                this.OnStop();
 
-                var testSite2 = siteCollection.SingleOrDefault(m => m.Id == 100);
-                if (testSite2 != null)
-                {
-                    testSite2.Bindings.Add("*:80:test.mydomain100.com", "http");
-
-                    sw.WriteLine("100绑定域名成功");
-                }
-                else
-                {
-                    sw.WriteLine("id=100的站点未发现");
-                }
-                sw.WriteLine("这里是参数：{0}",ParamTest);
-                serverManager.CommitChanges();
             }
 
         }
@@ -79,7 +96,8 @@ namespace WebAdministratorService
         {
             using (System.IO.StreamWriter sw = new StreamWriter("D:\\log.txt", true))
             {
-                sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "Stop.");
+
+                sw.WriteLine("服务停止：{0}\r\n",DateTime.Now);
             }
         }
 
@@ -98,7 +116,6 @@ namespace WebAdministratorService
         {
 
         }
-
 
     }
 }

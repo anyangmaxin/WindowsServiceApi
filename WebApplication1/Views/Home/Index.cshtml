@@ -1,4 +1,5 @@
-﻿@using System.Web.UI.WebControls
+﻿@using System.Net.Mime
+@using System.Web.UI.WebControls
 
 @{
     ViewBag.Title = "Index";
@@ -9,6 +10,7 @@
 
 @using (Html.BeginForm("StartService", "Home", FormMethod.Post))
 {
-    @Html.TextBox("value")
+  @:站点名称：  @Html.TextBox("SiteName")
+@:绑定域名：  @Html.TextBox("BindDomain")
     <input type="submit" value="启动服务" />
 }

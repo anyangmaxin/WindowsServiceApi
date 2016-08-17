@@ -14,15 +14,10 @@ namespace WebAdministratorService
         /// </summary>
         static void Main(string[] args)
         {
-            string ParamTest = "";
-            if (args.Length > 0)
-            {
-                ParamTest = args[0];
-            }
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new ServiceTest(ParamTest)
+                new ServiceTest()
             };
             ServiceBase.Run(ServicesToRun);
         }
