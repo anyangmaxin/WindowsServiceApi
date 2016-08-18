@@ -98,7 +98,9 @@ namespace WebAdministratorService
             {
 
                 sw.WriteLine("服务停止：{0}\r\n",DateTime.Now);
+
             }
+            this.Stop();
         }
 
         /// <summary>

@@ -4,7 +4,7 @@ using System.Runtime.ConstrainedExecution;
 
 namespace WindowsServiceInvest.ConfigureTest
 {
-    internal class SafeNativeMethods
+    public class SafeNativeMethods
     {
         #region const
 

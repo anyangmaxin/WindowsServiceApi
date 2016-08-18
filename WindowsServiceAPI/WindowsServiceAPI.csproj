@@ -107,6 +107,12 @@
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Web.Administrator.Lib\Microsoft.Web.Administrator.Lib.csproj">
+      <Project>{df267984-579a-4663-ae37-4fa0e13abe77}</Project>
+      <Name>Microsoft.Web.Administrator.Lib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

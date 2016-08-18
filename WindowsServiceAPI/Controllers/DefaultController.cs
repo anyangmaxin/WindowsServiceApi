@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Newtonsoft.Json;
 
+
 namespace WindowsServiceAPI.Controllers
 {
     [RoutePrefix("api/Default")]
@@ -23,14 +24,9 @@ namespace WindowsServiceAPI.Controllers
         // GET: api/Default/5
         public string Get(int id)
         {
-            var result = JsonConvert.SerializeObject(new {id});
-            return result;
-        }
-        [HttpGet]
-        public string GetTest(string id)
-        {
-            var result = JsonConvert.SerializeObject(new { id });
-            return result;
+           // return id.ToString();
+         return  WindowsServiceInvest.ConfigureTest.ServiceControllerExtension.StartService("ServiceTest", new string[] { "PSA8001", "www.baidu.com" });
+         
         }
 
         #endregion
