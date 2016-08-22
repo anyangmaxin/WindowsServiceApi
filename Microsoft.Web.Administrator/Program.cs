@@ -56,7 +56,7 @@ namespace Microsoft.Web.Administrator
 
                 if (removeBinding != null)
                 {
-                    site.Bindings.Remove(removeBinding);
+                   // site.Bindings.Remove(removeBinding);
                 }
           
 
@@ -72,7 +72,18 @@ namespace Microsoft.Web.Administrator
             //绑定域名
             a.Bindings.Add("*:80:test.baidu.com", "http");
             //*:80:admin.localtgjs.com
+           // serverManager.CommitChanges();
+
+
+
+            var sites= siteCollection.SingleOrDefault(m => m.Name == "test.site.com");
+            //获取该站点上已经绑定的域名
+            var domains = sites.Bindings;
+            Binding aaa = domains.SingleOrDefault(o => o.Host == "www.baidu.com");
+            sites.Bindings.Remove(aaa);
             serverManager.CommitChanges();
+
+
 
             Console.ReadKey();
 
