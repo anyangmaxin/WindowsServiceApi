@@ -120,5 +120,22 @@ namespace WindowsServiceTestUI
 
             label.Content = serviceController.Status.ToString();
         }
+
+        /// <summary>
+        /// 停止绑定域名服务
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button6_Click(object sender, RoutedEventArgs e)
+        {
+            ServiceController serviceController = new ServiceController("WeleaderBindDomain");
+            if (serviceController.Status != ServiceControllerStatus.Stopped)
+            {
+                if (serviceController.CanStop)
+                    serviceController.Stop();
+            }
+
+            label.Content = serviceController.Status.ToString();
+        }
     }
 }
